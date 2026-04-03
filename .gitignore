@@ -10,4 +10,11 @@ __pycache__/
 *.exe
 *.test
 vendor/
-go
+
+# Rust
+target/
+*.so
+*.dylib
+
+# Docker
+.dockerignore
