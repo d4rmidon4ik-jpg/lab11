@@ -1,13 +1,4 @@
-REPOSITORY       TAG       SIZE
-go-service       latest    (fill after: docker images go-service)
-python-service   latest    (fill after: docker images python-service)
-rust-service     latest    (fill after: docker images rust-service)
-
-Run to populate:
-  docker compose build
-  docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
-
-Expected approximate sizes:
-  go-service      ~12 MB   (scratch + static binary)
-  python-service  ~180 MB  (python:3.12-slim)
-  rust-service    ~90 MB   (debian:bookworm-slim)
+REPOSITORY             TAG       SIZE
+lab11-rust-service     latest    131MB
+lab11-go-service       latest    17.6MB
+lab11-python-service   latest    272MB
