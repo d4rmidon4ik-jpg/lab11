@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -28,6 +29,16 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+	// Режим healthcheck — вызывается Docker из контейнера
+	if len(os.Args) > 1 && os.Args[1] == "-health-check" {
+		resp, err := http.Get("http://localhost:8080/health")
+		if err != nil || resp.StatusCode != http.StatusOK {
+			fmt.Fprintln(os.Stderr, "health check failed")
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
