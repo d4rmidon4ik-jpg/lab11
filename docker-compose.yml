@@ -1,0 +1,85 @@
+version: "3.9"
+
+networks:
+  # Средн.6 — общая сеть, сервисы видят друг друга по имени
+  lab11-network:
+    driver: bridge
+
+services:
+
+  go-service:
+    build:
+      context: ./go-service
+      dockerfile: Dockerfile
+      # Повыш.4 — кросс-платформенная сборка через buildx
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    container_name: go-service
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    networks:
+      - lab11-network
+    # Средн.8 — healthcheck
+    # scratch не имеет wget — используем встроенный /server через exec
+    healthcheck:
+      test: ["CMD", "/server", "-health-check"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  python-service:
+    build:
+      context: ./python-service
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    container_name: python-service
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_NAME=python
+      # Средн.6 — Python обращается к Go по имени контейнера внутри сети
+      - GO_SERVICE_URL=http://go-service:8080
+    networks:
+      - lab11-network
+    depends_on:
+      go-service:
+        condition: service_healthy
+    # Средн.8 — healthcheck через встроенный Python (wget нет в slim)
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  rust-service:
+    build:
+      context: ./rust-service
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    container_name: rust-service
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+    networks:
+      - lab11-network
+    # Средн.8 — healthcheck через wget (установлен в bookworm-slim)
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
