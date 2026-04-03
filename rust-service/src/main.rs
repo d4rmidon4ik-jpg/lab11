@@ -1,9 +1,6 @@
 use axum::{routing::get, Json, Router};
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
 use serde_json::{json, Value};
 use std::env;
-use tower::ServiceExt; // для .oneshot()
 
 async fn ping() -> Json<Value> {
     Json(json!({
@@ -16,7 +13,7 @@ async fn health() -> Json<Value> {
     Json(json!({"status": "ok"}))
 }
 
-fn app() -> Router {
+pub fn app() -> Router {
     Router::new()
         .route("/ping", get(ping))
         .route("/health", get(health))
@@ -35,7 +32,9 @@ async fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use axum::body::to_bytes;
+    use axum::body::{to_bytes, Body};
+    use axum::http::{Request, StatusCode};
+    use tower::ServiceExt;
 
     #[tokio::test]
     async fn test_ping() {
