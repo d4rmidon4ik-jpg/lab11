@@ -1,4 +1,4 @@
-version: "3.9"
+яversion: "3.9"
 
 networks:
   # Средн.6 — общая сеть, сервисы видят друг друга по имени
@@ -12,9 +12,6 @@ services:
       context: ./go-service
       dockerfile: Dockerfile
       # Повыш.4 — кросс-платформенная сборка через buildx
-      platforms:
-        - linux/amd64
-        - linux/arm64
     container_name: go-service
     ports:
       - "8080:8080"
@@ -36,9 +33,6 @@ services:
     build:
       context: ./python-service
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
     container_name: python-service
     ports:
       - "8000:8000"
@@ -65,9 +59,6 @@ services:
     build:
       context: ./rust-service
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
     container_name: rust-service
     ports:
       - "8081:8081"
